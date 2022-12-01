@@ -3,7 +3,7 @@ import requests, os
 baseURL = "https://adventofcode.com/"
 
 def getInput(year, day, cookie):
-    fileName = f"{year}-{day}.txt"
+    fileName = f"{year}/{year}-{day}.txt"
     if os.path.isfile(fileName):
         with open(fileName, 'r') as file:
             return file.read().splitlines()
