@@ -14,6 +14,8 @@ def getInput(year, day, cookie):
         with open(fileName, 'w') as file:
             file.write(request.text)
         return request.text.splitlines()
+    else:
+        print(f"Error: {request.status_code}")
 
 def postAnswer(year, day, level, answer, cookie):
     data = {"answer": answer, "level": level}
