@@ -17,7 +17,7 @@ def part1(input):
 		container1 = [*container1]
 		container2 = [*container2]
 
-		common = ''.join(set(container1) & set(container2))
+		common = list(set(container1) & set(container2))[0]
 		
 		priority = 0
 		if common.islower():
@@ -37,9 +37,9 @@ def part2(input):
 	group = []
 	for num, line in enumerate(input):
 		if num % 3 == 2: #Third line in group
-			group.append([*line])
+			group.append(line)
 
-			common = ''.join(set(group[0]) & set(group[1]) & set(group[2]))
+			common = list(set(group[0]) & set(group[1]) & set(group[2]))[0]
 			
 			priority = 0
 			if common.islower():
