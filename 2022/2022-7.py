@@ -122,6 +122,8 @@ def part2(input):
     totalDiskspace = 70000000
     requiredFreeDiskspace = 30000000
     usedDiskspace = filesystem.getSize()
+
+    #print(RenderTree(filesystem, style=AsciiStyle()))
     
     def freeDiskspace(used=usedDiskspace, total=totalDiskspace):
         return total - used
