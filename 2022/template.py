@@ -5,13 +5,13 @@ import sys
 
 def part1(input):
 	count = 0
-
+	
 	return count
 
 
 def part2(input):
 	count = 0
-
+	
 	return count
 
 
