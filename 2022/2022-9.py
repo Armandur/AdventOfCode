@@ -3,6 +3,7 @@ import datetime
 import sys
 import time
 import os
+import copy
 
 def boldString(string):
 	start = "\033[92m"
@@ -15,14 +16,13 @@ def clearConsole():
         command = 'cls'
     os.system(command)
 
-
 class Tile:
     def __init__(self):
         self.visited = False
 
     def __str__(self):
         if self.visited:
-            return boldString(".")
+            return boldString("#")
         return "."
 
     def __repr__(self) -> str:
@@ -30,32 +30,53 @@ class Tile:
 
 
 class Rope:
-    def __init__(self, x, y, board):
+    def __init__(self, x, y, length, board):
         # x = Column, 0 = left
         # y = Row, 0 = top
-    
-        self.head = [x, y]
-        self.tail = [x, y]
 
-        board[self.tail[1]][self.tail[0]].visited = True
+        self.sections = []
+        for i in range(length):
+            self.sections.append([x, y])
+        self.length = length
 
-    def _manhattanDistance(self):
-        return abs(self.tail[0] - self.head[0]) + abs(self.tail[1] - self.head[1]) - 1
+        board[self.sections[::-1][0][1]][self.sections[::-1][0][0]].visited = True
 
+    def _distance(self, node1, node2):
+        return int(((node1[0] - node2[0])**2 + (node1[1] - node2[1])**2)**0.5)
 
-    def move(self, direction, steps, board):
-        boardExtended = False
-        if not board.pathExists(self, direction, steps):
-            board.extend(direction, steps)
-            #print(f"Board extended by {steps} in dir {direction}")
-            if direction == 'L': #X should increase by steps
-                self.head[0] += steps
-                self.tail[0] += steps
+    def _getDirection(self, ahead, behind):
+        if ahead == behind:
+            return [0, 0]
 
-            if direction == 'U': #Y should increase by steps
-                self.head[1] += steps
-                self.tail[1] += steps
-        
+        leftRight = upDown = 0
+
+        if ahead[0] > behind[0]:
+            leftRight = 1
+        elif ahead[0] < behind[0]:
+            leftRight = -1
+        else:
+            leftRight = 0
+
+        if ahead[1] > behind[1]:
+            upDown = 1
+        elif ahead[1] < behind[1]:
+            upDown = -1
+        else:
+            upDown = 0
+
+        return [leftRight, upDown]
+
+    def move(self, direction, steps, board, display=False, speed=0.5):
+        if not board.pathExists(self, direction, steps): # Need to extend the board if destination is out of bounds
+            amount = steps
+            board.extend(direction, amount)
+            
+            for section in self.sections:
+                if direction == 'L': #X should increase by steps
+                    section[0] += amount
+                if direction == 'U': #Y should increase by steps
+                    section[1] += amount
+
         deltaX = deltaY = 0
         if direction == "R":
             deltaX = 1
@@ -67,23 +88,28 @@ class Rope:
             deltaY = -1
 
         for step in range(steps):
-            newX = self.head[0]+deltaX
-            newY = self.head[1]+deltaY
-
-            self.head = [newX, newY]
-            board.tiles[newY][newX].visited = True
+            head = self.sections[0]
             
-            if self._manhattanDistance() == 2:
-                #Move tail
-                pass
-            continue #Below prints for each step, kind of fun!
-            clearConsole()
-            print(f"Board: {len(board.tiles)}, {len(board.tiles[0])}")
-            print(f"Tail at: {self.tail}")
-            print(f"Head at: {self.head}")
-            print(f"Instruction: {direction} {steps}")
-            print(board.__str__(self))
+            newX = head[0]+deltaX #New X-position of head
+            newY = head[1]+deltaY #New Y-position of head
+            
+            self.sections[0] = [newX, newY] # Move the head
+            
+            for index, section in enumerate(self.sections[1:]): #Check and move next sections, skip the first
+                current = section
+                next = self.sections[index]
+                distance = self._distance(current, next)
+                if distance > 1: #We have a gap, need to follow with the sections!    
+                    nextDirection = self._getDirection(next, current)
+                    nextPos = [current[0]+nextDirection[0], current[1]+nextDirection[1]]
+                    self.sections[index+1] = nextPos
 
+            tail = self.sections[::-1][0]
+            board.tiles[tail[1]][tail[0]].visited = True
+            if display:
+                clearConsole()
+                print(board.__str__(self))
+                time.sleep(speed)
 
 
 class Board:
@@ -98,7 +124,7 @@ class Board:
             tempRow = []
 
     def pathExists(self, rope, direction, steps):
-        destination = [rope.head[1], rope.head[0]]
+        destination = [rope.sections[0][1], rope.sections[0][0]]
         if direction == 'R':
             destination[1] += steps
         if direction == 'L':
@@ -131,6 +157,7 @@ class Board:
                 tempRow = []
                 for i in range(width):
                     tempRow.append(Tile())
+
                 self.tiles.insert(0, tempRow)
 
         if direction == 'D':
@@ -142,16 +169,17 @@ class Board:
                 self.tiles.append(tempRow)
 
 
-
     def __str__(self, rope=False):
         string = ""
         for _row, row in enumerate(self.tiles):
             for _col, col in enumerate(row):
                 char = str(col)
-                if rope and rope.tail == [_col, _row]:
-                    char = 'T'
-                if rope and rope.head == [_col, _row]:
-                    char = 'H'
+                if rope:
+                    for id, section in enumerate(rope.sections):
+                        if section == [_col, _row]:
+                            char = str(id)
+                            break
+                if char == '0': char = 'H'
                 string += char
                 string += " "
             string += "\n"
@@ -164,39 +192,38 @@ class Board:
         return self.tiles[key]
 
 
-
 def part1(input):
     count = 0
     
-    board = Board(1, 1)
-    rope = Rope(0, 0, board)
+    board = Board(4, 4)
+    rope = Rope(1, 1, 2, board)
 
-    print(board.__str__(rope))
     for line in input:
-        clearConsole()
-        print(f"Board: {len(board.tiles)}, {len(board.tiles[0])}")
-        print(f"Tail at: {rope.tail}")
-        print(f"Head at: {rope.head}")
-        print(f"Instruction: {line}")
-        print(board.__str__(rope))
-
         rope.move(line.split()[0], int(line.split()[1]), board)
-        time.sleep(1)
 
-    clearConsole()
-    print(f"Board: {len(board.tiles)}, {len(board.tiles[0])}")
-    print(f"Tail at: {rope.tail}")
-    print(f"Head at: {rope.head}")
-    print(f"Instruction: {line}")
-    print(board.__str__(rope))
+    tiles = [tile for row in board.tiles for tile in row]
+    for tile in tiles:
+        if tile.visited:
+            count += 1
 
     return count
 
 
 def part2(input):
-	count = 0
-	
-	return count
+    count = 0
+    
+    board = Board(4, 4)
+    rope = Rope(1, 1, 10, board)
+
+    for line in input:
+        rope.move(line.split()[0], int(line.split()[1]), board)
+
+    tiles = [tile for row in board.tiles for tile in row]
+    for tile in tiles:
+        if tile.visited:
+            count += 1
+    
+    return count
 
 
 if __name__ == '__main__':
@@ -207,7 +234,7 @@ if __name__ == '__main__':
 	with open(f"{today.year}/test.txt", "r") as file:
 		test = file.read().splitlines()
 
-	print(f"Part one: {part1(test)}")
+	print(f"Part one: {part1(input)}")
 	#print(util.postAnswer(today.year, today.day, 1, part1(input), cookie))
 
 	print(f"Part two: {part2(input)}")
