@@ -47,7 +47,7 @@ class Rope:
         boardExtended = False
         if not board.pathExists(self, direction, steps):
             board.extend(direction, steps)
-            print(f"Board extended by {steps} in dir {direction}")
+            #print(f"Board extended by {steps} in dir {direction}")
             if direction == 'L': #X should increase by steps
                 self.head[0] += steps
                 self.tail[0] += steps
@@ -76,6 +76,13 @@ class Rope:
             if self._manhattanDistance() == 2:
                 #Move tail
                 pass
+            continue #Below prints for each step, kind of fun!
+            clearConsole()
+            print(f"Board: {len(board.tiles)}, {len(board.tiles[0])}")
+            print(f"Tail at: {self.tail}")
+            print(f"Head at: {self.head}")
+            print(f"Instruction: {direction} {steps}")
+            print(board.__str__(self))
 
 
 
@@ -163,20 +170,6 @@ def part1(input):
     
     board = Board(1, 1)
     rope = Rope(0, 0, board)
-
-    print(f"Board: {len(board.tiles)}, {len(board.tiles[0])}")
-    print(f"Tail at: {rope.tail}")
-    print(f"Head at: {rope.head}")
-    print(board.__str__(rope))
-
-    rope.move('R', 1, board)
-    
-    print(f"Board: {len(board.tiles)}, {len(board.tiles[0])}")
-    print(f"Tail at: {rope.tail}")
-    print(f"Head at: {rope.head}")
-    print(board.__str__(rope))
-
-    exit()
 
     print(board.__str__(rope))
     for line in input:
