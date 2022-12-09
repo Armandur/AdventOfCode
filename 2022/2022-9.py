@@ -47,34 +47,24 @@ class Rope:
         boardExtended = False
         if not board.pathExists(self, direction, steps):
             board.extend(direction, steps)
-            boardExtended = True
+            print(f"Board extended by {steps} in dir {direction}")
+            if direction == 'L': #X should increase by steps
+                self.head[0] += steps
+                self.tail[0] += steps
 
-
-        deltaX = deltaY = 0
-        if direction == 'R':
-            deltaX = 1
-            pass
-
-        if direction == 'L':
-            deltaX = -1
-            pass
-
-        if direction == 'D':
-            deltaY = 1
-            pass
-
-        if direction == 'U':
-            deltaY = -1
-            pass
+            if direction == 'U': #Y should increase by steps
+                self.head[1] += steps
+                self.tail[1] += steps
         
-        if boardExtended:
-            print(f"Board extended by {steps} in {direction} direction")
-            self.head[0] += deltaX * steps *-1
-            self.tail[0] += deltaX * steps *-1
-            self.head[1] += deltaY * steps *-1
-            self.tail[1] += deltaY * steps *-1
-            
-           
+        deltaX = deltaY = 0
+        if direction == "R":
+            deltaX = 1
+        if direction == "L":
+            deltaX = -1
+        if direction == "D":
+            deltaY = 1
+        if direction == "U":
+            deltaY = -1
 
         for step in range(steps):
             newX = self.head[0]+deltaX
@@ -86,8 +76,6 @@ class Rope:
             if self._manhattanDistance() == 2:
                 #Move tail
                 pass
-
-        #print(board.__str__(self))
 
 
 
@@ -113,7 +101,7 @@ class Board:
         if direction == 'U':
             destination[0] -= steps
 
-        if min(destination) < 0 or max(destination) > len(self.tiles) or max(destination) > len(self.tiles[0]):
+        if min(destination) < 0 or max(destination) >= len(self.tiles) or max(destination) >= len(self.tiles[0]):
             return False
         return True
 
@@ -173,8 +161,22 @@ class Board:
 def part1(input):
     count = 0
     
-    board = Board(2, 2)
-    rope = Rope(1, 1, board)
+    board = Board(1, 1)
+    rope = Rope(0, 0, board)
+
+    print(f"Board: {len(board.tiles)}, {len(board.tiles[0])}")
+    print(f"Tail at: {rope.tail}")
+    print(f"Head at: {rope.head}")
+    print(board.__str__(rope))
+
+    rope.move('R', 1, board)
+    
+    print(f"Board: {len(board.tiles)}, {len(board.tiles[0])}")
+    print(f"Tail at: {rope.tail}")
+    print(f"Head at: {rope.head}")
+    print(board.__str__(rope))
+
+    exit()
 
     print(board.__str__(rope))
     for line in input:
