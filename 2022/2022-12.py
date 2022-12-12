@@ -56,7 +56,7 @@ class Tile:
             string = util.colorString(string, util.colors.blue)
 
         if self.visited:
-            string = util.colorString('¤', util.colors.cyan)
+            string = util.colorString(chr(self.height+Tile.lowerDelta), util.colors.black)
 
         return string
 
@@ -170,12 +170,6 @@ def part1(input):
     #print(board)
 
     network = board.findPath()
-    print(network)
-    print(board.end.position)
-
-    for tile in network:
-        board.tiles[tile.position.y][tile.position.x].visited=True
-        print(tile.position)
 
     for row in board.tiles:
         string = ""
@@ -183,7 +177,16 @@ def part1(input):
             string += str(tile)
         print(string)
 
-  
+    for tile in network:
+        board.tiles[tile.position.y][tile.position.x].visited=True
+
+    for row in board.tiles:
+        string = ""
+        for tile in row:
+            string += str(tile)
+        print(string)
+
+    count = len(network)
 
     return count
 
@@ -202,8 +205,8 @@ if __name__ == '__main__':
     with open(f"{today.year}/test.txt", "r") as file:
         test = file.read().splitlines()
         
-    print(f"Part one: {part1(test)}")
-	#print(util.postAnswer(today.year, today.day, 1, part1(input), cookie))
+    print(f"Part one: {part1(input)}")
+    #print(util.postAnswer(today.year, 12, 1, part1(input), cookie))
     
     print(f"Part two: {part2(input)}")
 	#print(util.postAnswer(today.year, today.day, 2, part2(input), cookie))
