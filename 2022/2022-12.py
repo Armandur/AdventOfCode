@@ -2,7 +2,7 @@ import util
 import datetime
 import sys
 from collections import namedtuple
-from copy import deepcopy
+import time
 
 
 Position = namedtuple("Position", "x y")
@@ -109,6 +109,9 @@ class Board:
             return True
         return False
 
+    def manhattanDistance(self, a, b):
+        return abs(b.position.y - a.position.y) + abs(b.position.x - a.position.x)
+
 
     def getAdjacents(self, tile, orthogonal=True):
         adjacents = []
@@ -130,18 +133,19 @@ class Board:
 
 
     def findPath(self, a=None, b=None):
-        a = self.start
-        b = self.end
+        
+        if not a:
+            a = self.start
+        if not b:
+            b = self.end
 
         pathIndex = 0
-        
-        if a and b:
-            a = a
-            b = b
 
-        paths = [[self.start]]
+        paths = []
+        paths.append([a])
         
-        visited = [paths[0][0].position]
+        visited = []
+        visited.append(a.position)
 
         while pathIndex < len(paths):
             currentPath = paths[pathIndex]
@@ -171,30 +175,56 @@ def part1(input):
 
     network = board.findPath()
 
-    for row in board.tiles:
-        string = ""
-        for tile in row:
-            string += str(tile)
-        print(string)
+    #for row in board.tiles:
+        #string = ""
+        #for tile in row:
+        #    string += str(tile)
+        #print(string)
 
     for tile in network:
         board.tiles[tile.position.y][tile.position.x].visited=True
 
-    for row in board.tiles:
-        string = ""
-        for tile in row:
-            string += str(tile)
-        print(string)
+    #for row in board.tiles:
+    #    string = ""
+    #    for tile in row:
+    #        string += str(tile)
+    #    print(string)
 
-    count = len(network)
+    count = len(network)+1
 
     return count
 
 
 def part2(input):
-	count = 0
-	
-	return count
+    count = 0
+    board = Board(input)
+    
+    aPositions = []
+    paths = []
+
+    for row in board.tiles:
+        for tile in row:
+            if tile.height == 1:
+                aPositions.append((tile, board.manhattanDistance(tile, board.end)))
+
+    aPositions.sort(key=lambda x: x[1])
+
+    shortest = 10000
+    for start in aPositions:
+        #print(f"Shortest distance is {shortest}")
+        #print(f"Checking distance from {start[0].position}, MHD: {start[1]}")
+        path = board.findPath(start[0])
+        if path == []:
+            #print("Path not found.")
+            pass
+        else:
+            if len(path) < shortest:
+                shortest = len(path)
+                #print(f"New shortest distance: {shortest}")
+
+    count = shortest+1
+
+    return count
 
 
 if __name__ == '__main__':
@@ -208,5 +238,8 @@ if __name__ == '__main__':
     print(f"Part one: {part1(input)}")
     #print(util.postAnswer(today.year, 12, 1, part1(input), cookie))
     
+    start = time.time()
     print(f"Part two: {part2(input)}")
+    end = time.time()
+    print(end-start)
 	#print(util.postAnswer(today.year, today.day, 2, part2(input), cookie))
