@@ -242,4 +242,4 @@ if __name__ == '__main__':
     print(f"Part two: {part2(input)}")
     end = time.time()
     print(end-start)
-	#print(util.postAnswer(today.year, today.day, 2, part2(input), cookie))
+	#print(util.postAnswer(today.year, 12, 2, part2(input), cookie))
