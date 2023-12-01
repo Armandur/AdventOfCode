@@ -5,9 +5,22 @@ import sys
 
 def part1(input):
 	count = 0
-	
-	return count
+	numbers = []
 
+	for line in input:
+		digits = ""
+		for character in line:
+			try:
+				if character.isdigit():
+					digits += character
+			except:
+				pass
+			
+		numbers.append(int(f"{digits[0]}{digits[-1]}"))
+
+	count = sum(numbers)
+
+	return count
 
 def part2(input):
 	count = 0
@@ -24,7 +37,7 @@ if __name__ == '__main__':
 		test = file.read().splitlines()
 
 	print(f"Part one: {part1(input)}")
-	#print(util.postAnswer(today.year, today.day, 1, part1(input), cookie))
+	print(util.postAnswer(today.year, today.day, 1, part1(input), cookie))
 
 	print(f"Part two: {part2(input)}")
 	#print(util.postAnswer(today.year, today.day, 2, part2(input), cookie))
