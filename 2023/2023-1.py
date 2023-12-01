@@ -10,12 +10,8 @@ def part1(input):
 	for line in input:
 		digits = ""
 		for character in line:
-			try:
-				if character.isdigit():
-					digits += character
-			except:
-				pass
-
+			if character.isdigit():
+				digits += character
 		numbers.append(int(f"{digits[0]}{digits[-1]}"))
 
 	count = sum(numbers)
@@ -28,59 +24,28 @@ def part2(input):
 	textnumbers = [("one", 1), ("two", 2), ("three", 3), ("four", 4), ("five", 5), ("six", 6), ("seven", 7), ("eight", 8), ("nine", 9)]
 
 	for line in input:
-		leftsearch = []
-		rightsearch = []
+		search = []
+
 		for number in textnumbers:
-			lposition = line.find(number[0])
-			rposition = line.rfind(number[0])
+			_lfind = line.find(number[0])
+			_rfind = line.rfind(number[0])
 
-			if lposition != -1:
-				leftsearch.append((number[1], lposition))
-			
-			if rposition != -1:
-				rightsearch.append((number[1], rposition))
+			if _lfind != -1:
+				search.append((number[1], _lfind))
+			if _rfind != -1:
+				search.append((number[1], _rfind))
 
-		#print(leftsearch)
-		#print(rightsearch)
+		for character in enumerate(line):
+			if character[1].isdigit():
+				search.append((int(character[1]), character[0]))
 
-		numsearch = []
-		for num in range(1,9):
-			numpos = line.find(str(num))
-			if numpos != -1:
-				numsearch.append((num, numpos))
-		#print(numsearch)
+		search.sort(key=lambda x: x[1])
+		firstNumber = search[0][0]
+		lastNumber = search[-1][0]
+		numbers.append(int(f"{firstNumber}{lastNumber}"))
+		#print(search)
 
-		if len(leftsearch) == 1 and len(rightsearch) == 1 and len(numsearch) == 0:
-			numbers.append(leftsearch[0][0])
-			continue
-
-		if len(leftsearch) == 0 and len(numsearch) == 1:
-			numbers.append(numsearch[0][0])
-			continue
-
-		if len(leftsearch) == 0 and len(numsearch) > 1:
-			print(numsearch)
-			continue
-
-		firstNumber = leftsearch[0]
-		lastNumber = rightsearch[0]
-
-		for number in leftsearch:
-			if number[1] < firstNumber[1]:
-				firstNumber = number
-
-		for number in rightsearch:
-			if number[1] > lastNumber[1]:
-				lastNumber = number
-
-		for number in numsearch:
-			if number[1] < firstNumber[1]:
-				firstNumber = number
-			if number[1] > lastNumber[1]:
-				lastNumber = number
-
-		print(f"{firstNumber[0]}{lastNumber[0]}")
-		numbers.append(int(f"{firstNumber[0]}{lastNumber[0]}"))
+	#print(numbers)
 
 	count = sum(numbers)
 
