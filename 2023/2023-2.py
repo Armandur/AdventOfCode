@@ -78,8 +78,7 @@ def part2(input):
 		power = math.prod(game[1].values())
 		count += power
 
-	
-	pprint(games)
+	#pprint(games)
 	return count
 
 
