@@ -1,4 +1,4 @@
-import requests, os
+import requests, os, re
 
 baseURL = "https://adventofcode.com/"
 
@@ -45,4 +45,4 @@ def postAnswer(year, day, level, answer, cookie):
 
     for line in request.text.splitlines():
         if line.startswith("<article"):
-            return line
+            return re.sub('<[^<]+?>', '', line)

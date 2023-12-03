@@ -2,6 +2,12 @@ import util
 import datetime
 import sys
 from pprint import pprint
+import collections
+import math
+
+# Moved to global to be able to be used in part2()
+schematic = []
+partnumbersAdjacentToGears = []
 
 def printSchematic(schematic):
 	for line in schematic:
@@ -11,14 +17,15 @@ def printSchematic(schematic):
 				printline += util.colorString(char, util.colors.green)
 			elif char == '.':
 				printline += char
+			elif char == '*':
+				printline += util.colorString(char, util.colors.yellow)
 			else:
 				printline += util.colorString(char, util.colors.red)
 		print(printline)
 
 def part1(input):
 	count = 0
-	schematic = []
-    
+
 	#Add input to 2d array
 	for line in input:
 		row = []
@@ -35,7 +42,7 @@ def part1(input):
 	# pad array with one . around edges
 	schematic.insert(0, list("." * (len(schematic[0]))))
 	schematic.insert(len(schematic), list("." * (len(schematic[0]))))
-	printSchematic(schematic)
+	#printSchematic(schematic)
 
 	# get all numbers, and coordinates of numbers and add to list?
 	numbers = [] # (467, (1, 2))
@@ -58,7 +65,6 @@ def part1(input):
 	#pprint(numbers)
 
 	# Iterate over the found numbers, and "drive around" the coordinates, padding the array should have helped here
-
 	parts = []
 	for number in numbers:
 		currentNumber = number[0]
@@ -86,7 +92,20 @@ def part1(input):
 				if type(current) != int and current != '.':
 					symbolFound = True
 					parts.append(currentNumber)
+					
+					# For part2, attach the surrounding coordinates to the partnumber and add to a list
+					# surroundingCoords = [] Only seems to be at most one * in contact
+					surroundingCoords = ()
+					for y_ in yRange:
+						for x_ in xRange: # Only add if char at x_, y_ is a *
+							if schematic[y_][x_] == "*":
+								# surroundingCoords.append((x_, y_)) Only seems to be one * in contact
+								surroundingCoords = (x_, y_) 
+
+					if surroundingCoords:
+						partnumbersAdjacentToGears.append((currentNumber, surroundingCoords))
 					break
+					## End for part 2
 
 			if symbolFound:
 				break
@@ -98,7 +117,41 @@ def part1(input):
 
 def part2(input):
 	count = 0
+	#printSchematic(schematic)
+	#pprint(partnumbersAdjacentToGears)
+	#print()
 
+	adjacentGears = list(list(zip(*partnumbersAdjacentToGears))[1])
+	#pprint(adjacentGears)
+
+	 # Count all the occurences of a gear-coordinate,
+	 # if a coordinate is counted twice it is adjacent to two part number
+	counter = collections.Counter(adjacentGears)
+
+	doubleAdjacentGearCoords = []
+
+	for coordinate in counter:
+		if counter[coordinate] == 2:
+			doubleAdjacentGearCoords.append(coordinate)
+
+	#print()
+	#pprint(doubleAdjacentGearCoords)
+	pairs = {}
+	for part in partnumbersAdjacentToGears[:]:
+		if part[1] in doubleAdjacentGearCoords:
+			if part[1] not in pairs.keys():
+				pairs[part[1]] = [part[0]]
+			else:
+				pairs[part[1]].append(part[0])
+	#print()
+	
+	#pprint(pairs)
+
+	#print()
+
+	for pair in pairs:
+		#print(math.prod(pairs[pair]))
+		count += math.prod(pairs[pair])
 	return count
 
 
@@ -111,7 +164,7 @@ if __name__ == '__main__':
 		test = file.read().splitlines()
 
 	print(f"Part one: {part1(input)}")
-	print(util.postAnswer(today.year, today.day, 1, part1(input), cookie))
+	#print(util.postAnswer(today.year, today.day, 1, part1(input), cookie))
 
 	print(f"Part two: {part2(input)}")
-	#print(util.postAnswer(today.year, today.day, 2, part2(input), cookie))
+	print(util.postAnswer(today.year, today.day, 2, part2(input), cookie))
