@@ -74,40 +74,28 @@ def part2(input):
 
 	#pprint(cards)
 
-	index = 0
-	while cards[index] != cards[-1]:
-		currentCardID = cards[index][0]
-		winningNumbers = list(set(cards[index][1]) & set(cards[index][2]))
-		#pprint(winningNumbers)
-
-		if not winningNumbers:
-			index += 1
-			continue
-
-		cardIDsToInsert = list(range(currentCardID+1, currentCardID+len(winningNumbers)+1))
-
-		cardsToInsert = []
-		for cardID in cardIDsToInsert:
-			#print(f"Getting card {cardID}")
-			for card in cards:
-				if card[0] == cardID:
-					cardsToInsert.append(card)
-					break
-			#print(f"Cards to later insert")
-			#pprint(cardsToInsert)
-
-		for card in cardsToInsert:
-			cards.insert(currentCardID, card)
-
-		cards.sort(key=lambda x : x[0])
-		#pprint(cards)
-
-		if cards[index] == cards[-1]:
-			break
-		index += 1
+	cardsTotal = len(cards)
+	cardEval = {}
+	for card in cards:
+		cardEval[card[0]] = {"amount": 1, "wins": 0}
 	
-	count = len(cards)
-	
+	for card in cards:
+		currentCardID = card[0]
+		winningNumbers = list(set(card[1]) & set(card[2]))
+		# How many cards does this card win?
+		if winningNumbers:
+			cardEval[currentCardID]["wins"] = len(winningNumbers)
+
+	for card in cardEval:
+		for wins in range(cardEval[card]["wins"]):
+			#Add the amount of this card to the next range(wins)-cards
+			cardEval[card+wins+1]["amount"] += cardEval[card]["amount"]
+
+	pprint(cardEval)
+
+	for card in cardEval:
+		count += cardEval[card]["amount"]
+
 	return count
 
 
@@ -123,4 +111,4 @@ if __name__ == '__main__':
 	#print(util.postAnswer(today.year, today.day, 1, part1(input), cookie))
 
 	print(f"Part two: {part2(input)}")
-	#print(util.postAnswer(today.year, today.day, 2, part2(input), cookie))
+	print(util.postAnswer(today.year, today.day, 2, part2(input), cookie))
