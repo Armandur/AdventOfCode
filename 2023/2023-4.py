@@ -108,7 +108,7 @@ if __name__ == '__main__':
 		test = file.read().splitlines()
 
 	print(f"Part one: {part1(input)}")
-	#print(util.postAnswer(today.year, today.day, 1, part1(input), cookie))
+	#print(util.postAnswer(today.year, 4, 1, part1(input), cookie))
 
 	print(f"Part two: {part2(input)}")
-	print(util.postAnswer(today.year, today.day, 2, part2(input), cookie))
+	print(util.postAnswer(today.year, 4, 2, part2(input), cookie))
