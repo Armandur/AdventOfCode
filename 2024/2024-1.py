@@ -1,11 +1,23 @@
 import util
 import datetime
 import sys
-
+from pprint import pprint
 
 def part1(input):
 	count = 0
-	
+
+	left = []
+	right = []
+
+	for line in input:
+		left.append([int(x) for x in line.split("   ")][0])
+		right.append([int(x) for x in line.split("   ")][1])
+	left.sort()
+	right.sort()
+
+	for index, x in enumerate(left):
+		pprint(f"{left[index]} {right[index]} : {abs(left[index] - right[index])}")
+		count += abs(left[index] - right[index])
 	return count
 
 
