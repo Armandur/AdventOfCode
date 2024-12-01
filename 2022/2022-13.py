@@ -3,6 +3,48 @@ import datetime
 import sys
 import json
 
+def check(left, right, index):
+    if index >= len(left) and index < len(right):
+        return "Correct"
+    elif index < len(left) and index >= len(right):
+        return "Incorrect"
+    elif index >= len(left) and index >= len(right):
+        return "Next"
+
+
+    if isinstance(left[index], int):
+        
+        if isinstance(right[index], int):
+
+            if left[index] == right[index]:
+                #Continuing
+                return check(left, right, index+1)
+            if left[index] < right[index]:
+                return "Correct"
+            else:
+                return "Incorrect"
+
+        if isinstance(right[index], int):
+            result = check(left, list(right), index)
+            if result == "Next":
+                return check(left, right, index+1)
+            else:
+                return result
+
+        if isinstance(right[index], list):
+            result = check(list(left), right, index)
+            if result == "Next":
+                return check(left, right, index+1)
+            else:
+                return result
+    
+
+    result = check(left[index], right[index], 0)
+    if result == "Next":
+        return check(left, right, index+1)
+    else:
+        return result 
+
 def part1(input):
     count = 0
     pairs = []
@@ -19,14 +61,6 @@ def part1(input):
     #    print(pair[0])
     #    print(pair[1])
     #    print()
-
-    def check(left, right):
-        if isinstance(left, list):
-            if isinstance(right, list):
-                return check(list(left), list(right))
-            if isinstance(left[0], int):
-                if isinstance(right[0], int):
-                    return left < right 
             
     indices = []
     for index, pair in enumerate(pairs[0:]):
@@ -35,7 +69,7 @@ def part1(input):
         right = pair[1]
 
 
-        if check(left, right):
+        if check(left, right, 0) == "Correct":
             indices.append(index)
 
     print(indices)
