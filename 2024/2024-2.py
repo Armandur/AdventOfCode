@@ -42,67 +42,51 @@ def part1(input):
 
 
 def part2(input):
-	count = 0
-
-	def checkReport(lineNumber, line):
-		previousValue = 0
-		previousDelta = ""
-		delta = ""
-		
-		print(f"Report {lineNumber+1}\n" + util.colorString(line, util.colors.cyan))
-		report = line
-		for index, value in enumerate(report):
-			if not index:
-				print(f"[{index}] : {value} :\tΔ {delta}\t- {abs(value - previousValue)}")
-			
-			if index >= 1:
-				if value < previousValue:
-					delta = "decr"
-				if value > previousValue:
-					delta = "incr"
-				if value == previousValue:
-					delta = "stab"
-				
-				print(f"[{index}] : {value} :\tΔ {delta}\t- {abs(value - previousValue)}")
-				
-				if (delta == "stab"):
-					print(util.colorString(f"No Δ, Error!", util.colors.red))
-					return ("Error", index)
-				
-				if (previousDelta and previousDelta != delta):
-					print(util.colorString(f"Change in Δ, Error!", util.colors.red))
-					return ("Error", index)
-				
-				if abs(value - previousValue) > 3:
-					print(util.colorString(f"To steep Δ, Error!", util.colors.red))
-					return ("Error", index)
-				previousDelta = delta
-			previousValue = value
-		return ("Safe", -1)
-
-	for lineNumber, line in enumerate(input):
-		line = [int(x) for x in line.split(" ")]
-		errors = 0
-		result = checkReport(lineNumber, line)
-		
-		if result[0] == "Error":
-			errors +=1
-			newReport = line.copy()
-			newReport.pop(result[1])
-
-			print(util.colorString(f"Error in report, removing value {line[result[1]]} at [{result[1]}]", util.colors.red))
-			print(util.colorString(f"Dampened report: {newReport}, running again...", util.colors.yellow))
-			result = checkReport(lineNumber, newReport)
-			if result[0] == "Safe":
-				print(util.colorString(f"Report {lineNumber+1} within tolerances!", util.colors.green))
-				count += 1
+	def isSafe(report):
+		deltas = []
+		for i in range(len(report)):
+			try:
+				a = report[i]
+				b = report[i+1]
+				#print(f"{b} - {a} = {b - a}")
+				deltas.append(b - a)
+			except IndexError:
+				continue
+		deltaString = "["
+		for index, delta in enumerate(deltas):
+			if delta > 0:
+				deltaString += util.colorString(delta, util.colors.green)
+			elif delta < 0:
+				deltaString += util.colorString(delta, util.colors.red)
 			else:
-				print(util.colorString(f"Report {lineNumber+1} above tolerances!", util.colors.red))
+				deltaString += util.colorString(delta, util.colors.yellow)
+			if index < len(deltas)-1:
+				deltaString += ", "
+		deltaString += "]"
+		print(util.colorString("Calculated Δ's: ", util.colors.cyan) + deltaString)
+		return all(1 <= delta <= 3 for delta in deltas) or all(-3 <= delta <= -1 for delta in deltas)
+	
+	count = 0
+	for linenumber, line in enumerate(input):
+		report = [int(x) for x in line.split(" ")]
+		print(f"Testing report {linenumber+1}\n" + util.colorString(report, util.colors.cyan))
+		if isSafe(report):
+			count += 1
+			print(util.colorString("Safe! ", util.colors.green) + "Total safe reports: " +  util.colorString(count, util.colors.magenta))
 		else:
-			print(util.colorString(f"Report {lineNumber+1} within tolerances!", util.colors.green))
-			count +=1
-		print(util.colorString("---------------------", util.colors.magenta))
-		print("Total safe reports: " + util.colorString(count, util.colors.magenta))
+			print()
+			print(util.colorString("Not safe! ", util.colors.red) + util.colorString("Engaging dampener!", util.colors.yellow))
+			broken = False
+			for i in range(len(report)):
+				testlist = report.copy()
+				testlist.pop(i)
+				if isSafe(testlist):
+					count += 1
+					print(util.colorString("Within tolerance! ", util.colors.green) + "Total safe reports: " +  util.colorString(count, util.colors.magenta))
+					broken = True
+					break
+			if not broken:
+				print(util.colorString("Above tolerance! ", util.colors.red) + "Total safe reports: " +  util.colorString(count, util.colors.magenta))
 		print()
 	return count
 
