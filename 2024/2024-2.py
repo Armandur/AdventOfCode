@@ -40,7 +40,6 @@ def part1(input):
 
 	return count
 
-
 def part2(input):
 	def isSafe(report):
 		deltas = []
