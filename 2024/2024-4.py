@@ -8,8 +8,6 @@ import os
 def part1(puzzleInput):
 	count = 0
 
-
-
 	#  Y  X ->
 	#  |
 	# \ /
@@ -40,171 +38,60 @@ def part1(puzzleInput):
 	coordsXMAS = []
 
 	def checkXMAS(wordMap, pos): #post (x, y)
-		coords = []
-		XMAS = ""
-
-		# UP
-		for y in range(pos[1], pos[1]-len("XMAS"), -1):
-			if y < 0:
-				break
-			# print(wordMap[y][pos[0]])
-			XMAS += wordMap[y][pos[0]]
-			coords.append(((pos[0], y)))
-		if XMAS == "XMAS":
-			coordsXMAS.append(coords)
-		coords = []
-		XMAS = ""
-
-		# DOWN
-		try:
-			for y in range(pos[1], pos[1]+len("XMAS")):
-				if y > len(wordMap):
-					break
-				# print(wordMap[y][pos[0]])
-				XMAS += wordMap[y][pos[0]]
-				coords.append((pos[0], y))
-			if XMAS == "XMAS":
-				coordsXMAS.append(coords)
-		except IndexError:
-			pass
-		coords = []
-		XMAS = ""
-
-		# LEFT
-		for x in range(pos[0], pos[0]-len("XMAS"), -1):
-			if x < 0:
-				break
-			# print(wordMap[pos[1]][x])
-			XMAS += wordMap[pos[1]][x]
-			coords.append((x, pos[1]))
-		if XMAS == "XMAS":
-			coordsXMAS.append(coords) 
-		coords = []
-		XMAS = ""
+		posX = pos[0]
+		posY = pos[1]
 		
-		# RIGHT
-		try: 
-			for x in range(pos[0], pos[0]+len("XMAS")):
-				if x > len(wordMap[0]):
+		def onBoard(pos):
+			x = pos[0]
+			y = pos[1]
+			if 0 <= x < len(wordMap[0]) and 0 <= y < len(wordMap):
+				return True
+			else:
+				return False
+
+		deltas = [
+			[list(range(0, -4, -1)), list(range(0, -4, -1))], 	# UPLEFT
+			[[0, 0, 0, 0], list(range(0, -4, -1))], 			# UP
+			[list(range(0, 4)), list(range(0, -4, -1))],		# UPRIGHT
+			[list(range(0, 4)), [0, 0, 0, 0]],					# RIGHT
+			[list(range(0, 4)), list(range(0, 4))],				# DOWNRIGHT
+			[[0, 0, 0, 0], list(range(0, 4))],					# DOWN
+			[list(range(0, -4, -1)), list(range(0, 4))],		# DOWNLEFT
+			[list(range(0, -4, -1)), [0, 0, 0, 0]]				# LEFT
+		   ]
+		
+		for delta in deltas:
+			XMAS = ""
+			coords = []
+			for i in range(4):
+				x = posX+delta[0][i]
+				y = posY+delta[1][i]
+				if not onBoard((x, y)):
+					XMAS = ""
+					coords = []
 					break
-				# print(wordMap[pos[1]][x])
-				XMAS += wordMap[pos[1]][x]
-				coords.append((x, pos[1]))
+				XMAS += wordMap[y][x]
+				coords.append((x, y))
 			if XMAS == "XMAS":
 				coordsXMAS.append(coords)
-		except IndexError:
-			pass
-		coords = []
-		XMAS = ""
-
-		# UPLEFT
-		try:
-			for step, y in enumerate(range(pos[1], pos[1]-len("XMAS"), -1)):
-				x = pos[0]-step
-				if x < 0 or y < 0:
-					break
-				XMAS += wordMap[y][x]
-				coords.append((x, y))
-
-				# printWordmap(wordMap, [[(x, y)]], util.colors.red)
-				# print("UPLEFT")
-				# print(util.colorString(f"({x}, {y})", util.colors.cyan))
-				# time.sleep(0.3)
-				# os.system("cls")					
-				if XMAS == "XMAS":
-					coordsXMAS.append(coords)
-		except IndexError:
-			pass
-		coords = []
-		XMAS = ""
-
-		# UPRIGHT
-		try:
-			for step, y in enumerate(range(pos[1], pos[1]-len("XMAS"), -1)):
-				x = pos[0]+step
-				if x > len(wordMap[0]) or y < 0:
-					break
-				XMAS += wordMap[y][x]
-				coords.append((x, y))
-
-				# printWordmap(wordMap, [[(x, y)]], util.colors.red)
-				# print("UPRIGHT")
-				# print(util.colorString(f"({x}, {y})", util.colors.cyan))
-				# time.sleep(0.3)
-				# os.system("cls")
-			if XMAS == "XMAS":
-				coordsXMAS.append(coords)
-		except IndexError:
-			pass
-		coords = []
-		XMAS = ""
-
-		# DOWNLEFT
-		try:
-			for step, y in enumerate(range(pos[1], pos[1]+len("XMAS"))):
-				x = pos[0]-step
-				if x > len(wordMap[0] or y > len(wordMap)):
-					break
-				XMAS += wordMap[y][x]
-				coords.append((x, y))
-				
-				# printWordmap(wordMap, [[(x, y)]], util.colors.red)
-				# print("DOWNLEFT")
-				# print(util.colorString(f"({x}, {y})", util.colors.cyan))
-				# time.sleep(0.3)
-				# os.system("cls")
-			if XMAS == "XMAS":
-				coordsXMAS.append(coords)
-		except IndexError:
-			pass
-		coords = []
-		XMAS = ""
-
-		# DOWNRIGHT
-		try:
-			for step, y in enumerate(range(pos[1], pos[1]+len("XMAS"))):
-				x = pos[0]+step
-				if x > len(wordMap[0] or y > len(wordMap)):
-					break
-				XMAS += wordMap[y][x]
-				coords.append((x, y))
-				
-				# printWordmap(wordMap, [[(x, y)]], util.colors.red)
-				# print("DOWNRIGHT")
-				# print(util.colorString(f"({x}, {y})", util.colors.cyan))
-				# time.sleep(0.3)
-				# os.system("cls")
-				if XMAS == "XMAS":
-					coordsXMAS.append(coords)
-		except IndexError:
-			pass
-		coords = []
-		XMAS = ""
+				#printWordmap(wordMap, coordsXMAS)
+				#os.system("cls")
 
 	mapWidth = len(puzzleInput[0])
 	mapHeight = len(puzzleInput)
 	for y in range(0, mapHeight):
 		line = ""
 		for x in range(0, mapWidth):
-			#printWordmap(input, [[(x, y)]], util.colors.red)
-			#time.sleep(0.2)
-			#os.system("cls")
 			if puzzleInput[y][x] == "X":
 				sumOfXMASCoords = len(coordsXMAS)
 				checkXMAS(puzzleInput, (x, y))
-				#if len(coordsXMAS) > sumOfXMASCoords:
-					#printWordmap(puzzleInput, coordsXMAS)
-					#print()
-					#print(len(coordsXMAS))
-					#input()
-					#os.system("cls")
 					
-	#printWordmap(input, coordsXMAS)
+	#printWordmap(puzzleInput, coordsXMAS)
 	count = len(list(map(list, {tuple(sublist) for sublist in coordsXMAS})))
 	return count
 
 
-def part2(input):
+def part2(puzzleInput):
 	count = 0
 	
 	return count
@@ -212,13 +99,13 @@ def part2(input):
 if __name__ == '__main__':
 	cookie = sys.argv[1]
 	today = datetime.datetime.now()
-	puzzleInput = util.getInput(today.year, today.day, cookie)
+	puzzleInput = util.getInput(today.year, 4, cookie)
 	test = []
 	with open(f"{today.year}/test.txt", "r") as file:
 		test = file.read().splitlines()
 
-	print(f"Part one: {part1(test)}")
-	#print(util.postAnswer(today.year, today.day, 1, part1(input), cookie))
+	print(f"Part one: {part1(puzzleInput)}")
+	print(util.postAnswer(today.year, 4, 1, part1(puzzleInput), cookie))
 
 	print(f"Part two: {part2(puzzleInput)}")
-	#print(util.postAnswer(today.year, today.day, 2, part2(input), cookie))
+	#print(util.postAnswer(today.year, today.day, 2, part2(puzzleInput), cookie))
