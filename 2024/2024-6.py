@@ -52,7 +52,8 @@ class Entity:
 class Character(Entity):
 	def __init__(self, point, character, color, direction):
 		self.direction = direction
-		self.positions = []
+		self.directionPositions = list()
+		self.positions = set()
 		super().__init__(point, character, color)
 	
 	def turn(self, leftOrRight, degrees=90):
@@ -80,8 +81,8 @@ class Character(Entity):
 class Map:
 	def __init__(self):
 		self.map = []
-		self.entities = []
 		self.character = Character(Point(0, 0), "^", Terminal().red, Direction.north)
+		self.obstacles = set()
 
 	def height(self):
 		return len(self.map)
@@ -90,35 +91,36 @@ class Map:
 		return len(self.map[0])
 	
 	def isBlocked(self, point):
-		for entity in self.entities:
-			if entity.position == point and entity.blocking:
-				return True
-		return False
+		if point.x >= 0 and point.y >= 0 and point.y < self.height() and point.x < self.width():
+			return self.map[point.y][point.x].blocking
 
 	def load(self, data):
 		height = len(data)
 		width = len(data[0])
 		groundCharacter = " "
-
 		term = Terminal()
-
 		for y in range(height):
-			print(term.home + term.clear + f"Loading row {y}")
 			row = [(Entity(Point(-1, -1), groundCharacter, Terminal().on_black, blocking=False))] * width
 			self.map.append(row)
 
 		obstacleCharacter = "#"
 		guardCharacter = "^"
+		obstacles = 0
 		for y, line in enumerate(data):
-			print(term.home + term.clear + f"Loading entites, {len(self.entities)} loaded")
 			for x, character in enumerate(line):
 				if character == obstacleCharacter:
-					self.entities.append(Entity(Point(x, y), obstacleCharacter, Terminal().yellow))
+					self.map[y][x] = Entity(Point(x, y), obstacleCharacter, Terminal().yellow)
+					self.obstacles.add((x, y))
+					obstacles += 1
+
 				if character == guardCharacter:
 					self.character.position.shift((x, y))
+					self.character.directionPositions.append(((x, y), self.character.direction))
+					self.character.positions.add((x, y))
+		print(term.home + f"{obstacles} obstacles loaded")
 
 	def saveMap(self):
-		with open("2024-6-save.txt", "w") as savefile:
+		with open("2024/2024-6-save.txt", "w") as savefile:
 			for y in range(self.height()):
 				line = ""
 				for x in range(self.width()):
@@ -127,25 +129,14 @@ class Map:
 						line += self.character.character
 					else:
 						c = self.map[y][x].character
-						if writePos in self.character.positions:
+						if writePos in self.character.directionPositions:
 							c = "."
-						for entity in self.entities:
-							if entity.position == writePos:
-								c = entity.character
 						line += c
 				savefile.write(line+"\n")
 
-def part1(puzzleInput):
-	input()
-	count = 0
+puzzleMap = Map()
 
-	puzzleMap = Map()
-	puzzleMap.load(puzzleInput)
-
-	os.system("mode 60,60")
-	term = Terminal()
-
-	def refreshMap(windowSize=30):
+def refreshMap(term, windowSize=30):
 		startX = max(0, puzzleMap.character.position.x - windowSize*2 // 2)
 		startY = max(0, puzzleMap.character.position.y - windowSize // 2)
 		endX = min(puzzleMap.width(), puzzleMap.character.position.x + windowSize*2 // 2)
@@ -162,49 +153,100 @@ def part1(puzzleInput):
 						c = puzzleMap.map[y][x].color + puzzleMap.map[y][x].character
 						if writePos in puzzleMap.character.positions:
 							c = term.cyan + "."
-						for entity in puzzleMap.entities:
-							if entity.position == writePos:
-								c = entity.color + entity.character
 						line += c
 				printMap.append(line)
 			for n, line in enumerate(printMap):
 				print(term.move_xy(0, n) + line, end="")
 
-	puzzleMap.character.positions.append(Point(puzzleMap.character.position.x, puzzleMap.character.position.y))
+def walkGuard(puzzleMap):
+	newPos = (puzzleMap.character.position.x+puzzleMap.character.direction.value[0], puzzleMap.character.position.y+puzzleMap.character.direction.value[1])
+
+	if (newPos[0] < 0 or newPos[0] >= puzzleMap.width()) or (newPos[1] < 0 or newPos[1] >= puzzleMap.height()):
+		return "Exited!"
+	
+	if (newPos, puzzleMap.character.direction) in puzzleMap.character.directionPositions:
+		return "Loopdeloop!"
+
+	if not (newPos) in puzzleMap.obstacles:
+		puzzleMap.character.position.move(newPos[0], newPos[1])
+		if (newPos) not in puzzleMap.character.positions:
+			puzzleMap.character.positions.add(newPos)
+		if (newPos, puzzleMap.character.direction) not in puzzleMap.character.directionPositions:
+			puzzleMap.character.directionPositions.append((newPos, puzzleMap.character.direction))
+	else:
+		puzzleMap.character.turn("right")
+	return "Walking"
+
+def part1(puzzleInput):
+	term = Terminal()
+	puzzleMap.load(puzzleInput)
+	count = 0
+	input()
+
 	while True:
-		newPos = Point(puzzleMap.character.position.x, puzzleMap.character.position.y)
-		newPos.shift(puzzleMap.character.direction.value)
-		if (newPos.x < 0 or newPos.x > puzzleMap.width()) or (newPos.y < 0 or newPos.y > puzzleMap.height()):
+		status = walkGuard(puzzleMap)
+		count = len(puzzleMap.character.positions)
+		#if count > 5233:
+		#if True:
+		#	refreshMap(term, 15)
+		
+		if count % 100 == 0 or count > 5233:
+		#if True:
+			with term.hidden_cursor():
+				print(term.move_xy(0, 31) + term.green + status)
+				print(term.move_xy(0, 32) + term.green + str(puzzleMap.character.position))
+				print(term.move_xy(0, 33) + term.green + str(count))
+		if status == "Exited!" or status == "Loopdeloop!":
 			break
 
-		if not puzzleMap.isBlocked(newPos):
-			puzzleMap.character.position.move(newPos.x, newPos.y)
-			if newPos not in puzzleMap.character.positions:
-				puzzleMap.character.positions.append(newPos)
-		else:
-			puzzleMap.character.turn("right")
+	return count
 
-		count = len(puzzleMap.character.positions)
-		
-		if count > 5220:
-			refreshMap(30)
-			
-		with term.hidden_cursor():
-			print(term.move_xy(0, 31) + term.green + str(puzzleMap.character.position))
-			print(term.move_xy(0, 32) + term.green + str(count-1))
-		#time.sleep(0.05)
-	#puzzleMap.saveMap()
-
-	return count-1
-
-
+#1753
 def part2(puzzleInput):
+	term = Terminal()
+	originalRoute = list.copy(puzzleMap.character.directionPositions)
 	count = 0
+	index = 0
+
+	placed = set()
+
+	for point, _ in originalRoute:
+		if point in placed:
+			index += 1
+			continue
+
+		if index == 0:
+			index += 1
+			continue
+
+		puzzleMap.character.positions.clear()
+		puzzleMap.character.directionPositions.clear()
 	
+		puzzleMap.character.position.move(originalRoute[index-1][0][0], originalRoute[index-1][0][1])
+		puzzleMap.character.direction = originalRoute[index-1][1]
+
+		#puzzleMap.map[point[0]][point[1]] = Entity(point, "0", term.magenta)
+		puzzleMap.obstacles.add(point)
+		
+		while True:
+			#refreshMap(term, 15)
+			status = walkGuard(puzzleMap)
+			if status == "Loopdeloop!":
+				count += 1
+				print(term.move_xy(0, 38) + term.green + f"Loops: {count}")
+				placed.add(point)
+				puzzleMap.obstacles.remove(point)
+				break
+			if status == "Exited!":
+				placed.add(point)
+				puzzleMap.obstacles.remove(point)
+				break
+		index += 1
 	return count
 
 
 if __name__ == '__main__':
+	os.system("mode 60,60")
 	cookie = sys.argv[1]
 	today = datetime.datetime.now()
 	puzzleInput = util.getInput(today.year, today.day, cookie)
