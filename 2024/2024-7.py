@@ -89,4 +89,4 @@ if __name__ == '__main__':
 	#print(util.postAnswer(today.year, today.day, 1, part1(puzzleInput), cookie))
 
 	print(f"Part two: {part2(puzzleInput)}")
-	print(util.postAnswer(today.year, today.day, 2, part2(puzzleInput), cookie))
+	#print(util.postAnswer(today.year, today.day, 2, part2(puzzleInput), cookie))
