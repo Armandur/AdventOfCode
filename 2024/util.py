@@ -5,16 +5,19 @@ baseURL = "https://adventofcode.com/"
 headers = {"User-Agent": "github.com/Armandur/AdventOfCode by rasmus.pettersson.vik@gmail.com"}
 
 class colors:
-	black = "30m"
-	red = "31m"
-	green = "32m"
-	yellow = "33m"
-	blue = "34m"
-	magenta = "35m"
-	cyan = "36m"
-	white = "37m"
+    black = "30m"
+    red = "31m"
+    green = "32m"
+    yellow = "33m"
+    blue = "34m"
+    magenta = "35m"
+    cyan = "36m"
+    white = "37m"
+    bluebg = "44m"
+    cyanbg = "46m"
+    brightcyan = "96m"
 
-	colors = [red, green, yellow, blue, magenta, cyan]
+    colors = [red, green, yellow, blue, magenta, cyan]
 
 
 def colorString(string, color):
