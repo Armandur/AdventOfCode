@@ -7,17 +7,29 @@ headers = {"User-Agent": "github.com/Armandur/AdventOfCode by rasmus.pettersson.
 class colors:
     black = "30m"
     red = "31m"
+    brightred = "91m"
     green = "32m"
+    brightgreen = "92m"
     yellow = "33m"
+    brightyellow = "93m"
     blue = "34m"
+    brightblue = "94m"
     magenta = "35m"
+    brightmagenta = "95m"
     cyan = "36m"
+    brightcyan = "96m"
     white = "37m"
+    brightwhite = "97m"
+
     bluebg = "44m"
     cyanbg = "46m"
-    brightcyan = "96m"
+    redbg = "41m"
+
+    brightgreenbg = "102m"
+    
 
     colors = [red, green, yellow, blue, magenta, cyan]
+    brightColors = [brightred,  brightgreen, brightyellow, brightblue, brightmagenta, brightcyan]
 
 
 def colorString(string, color):
