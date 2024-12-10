@@ -39,7 +39,7 @@ def addTuple(a:tuple, b:tuple) -> tuple:
 
 foundTrails = dict()
 
-def traverse(position, path, map):
+def traverse(position, path, map, part=1):
 	if not path:
 		path = [position]
 	
@@ -59,16 +59,23 @@ def traverse(position, path, map):
 			if newHeight - currentHeight == 1:
 				path.append(newPos)
 				if map[newPos[1]][newPos[0]] == 9:
-					if (path[0], path[-1]) not in foundTrails.keys():
-						foundTrails.update({(path[0], path[-1]) : path})
+					if part == 1: # Only save one path from the trailhead to each peak
+						if (path[0], path[-1]) not in foundTrails.keys():
+							foundTrails.update({(path[0], path[-1]) : path}) # Index is (trailhead coordinates, peak coordinates)
+					if part == 2: # Save all paths from the trailhead to the peaks
+						if (path[0], path[-1]) not in foundTrails.keys():
+							foundTrails.update({(path[0], path[-1]) : [path]})
+						else:
+							foundTrails[(path[0], path[-1])].append(path)
 					path = path[:-1]
 				else:
-					traverse(newPos, path.copy(), map)
+					traverse(newPos, path.copy(), map, part)
 	path = []
 	return
 
 def part1(puzzleInput):
-	print(f"")
+	global foundTrails
+	foundTrails = dict()
 	topographicalMap = list()
 	trailheads = set()
 
@@ -101,7 +108,33 @@ def part1(puzzleInput):
 	return count
 
 def part2(puzzleInput):
+	global foundTrails
+	foundTrails = dict()
+	topographicalMap = list()
+	trailheads = set()
+
+	for y, line in enumerate(puzzleInput):
+		row = list()
+		for x, column in enumerate(line):
+			row.append(int(column))
+			if int(column) == 0:
+				trailheads.add((x, y))
+		topographicalMap.append(row)
+	
+	print()
+	print(f"The reindeer gave us a topographical map, it is {len(puzzleInput)}x{len(puzzleInput[0])}:")
+	#printMap(topographicalMap)
+
+	for trailhead in trailheads:
+		traverse(trailhead, [], topographicalMap, 2)
+
+	#pprint(foundTrails)
+
 	count = 0
+
+	for key in foundTrails.keys():
+		print(f"Trails from {key[0]} to {key[1]} :  {len(foundTrails[key])}")
+		count += len(foundTrails[key])
 	
 	return count
 
@@ -117,4 +150,4 @@ if __name__ == '__main__':
 	#print(util.postAnswer(today.year, today.day, 1, part1(puzzleInput), cookie))
 
 	print(f"Part two: {part2(puzzleInput)}")
-	#print(util.postAnswer(today.year, today.day, 2, part2(puzzleInput), cookie))
+	print(util.postAnswer(today.year, today.day, 2, part2(puzzleInput), cookie))
