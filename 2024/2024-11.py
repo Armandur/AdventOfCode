@@ -25,8 +25,8 @@ def blink(stones : list[int]) -> list[int]:
 
 def part1(puzzleInput):
 	count = 0
-	stones = list()
 
+	stones = list()
 	stones = [int(i) for i in puzzleInput[0].split()]
 	pprint(stones)
 
@@ -35,12 +35,47 @@ def part1(puzzleInput):
 
 	pprint(len(stones))
 
-	
 	return count
 
 
+stones = dict()
+
+def blink2(stone):
+	stoneString = str(stone)
+	length = len(stoneString)
+
+	if stone == 0:
+		return (1, None)
+	
+	if length % 2 == 0:
+		return (int(stoneString[:length//2]), int(stoneString[length//2:]))
+	return (stone * 2024, None)
+
+
+def calculate(stone, blinks):
+	if (stone, blinks) in stones:
+		return stones[(stone, blinks)]
+	
+	leftStone, rightStone = blink2(stone)
+
+	if blinks == 1:
+		if rightStone == None:
+			return 1
+		return 2
+	else:
+		amount = calculate(leftStone, blinks-1)
+		if rightStone is not None:
+			amount += calculate(rightStone, blinks-1)
+		stones.update({(stone, blinks) : amount})
+		return amount
+	
 def part2(puzzleInput):
 	count = 0
+
+	startingStones = [int(i) for i in puzzleInput[0].split()]
+	pprint(startingStones)
+	for stone in startingStones:
+		count += calculate(stone, 75)
 	
 	return count
 
