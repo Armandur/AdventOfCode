@@ -24,6 +24,7 @@ class colors:
     bluebg = "44m"
     cyanbg = "46m"
     redbg = "41m"
+    greenbg = "42m"
 
     brightgreenbg = "102m"
     
