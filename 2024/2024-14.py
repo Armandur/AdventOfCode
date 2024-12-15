@@ -32,7 +32,8 @@ def printMap(bathroomMap : tuple, robots : list):
 			if robotCount > 1:
 				lineString += util.colorString(str(robotCount), util.colors.redbg) + " "
 			if robotCount == 0:
-				lineString += "· "
+				#lineString += "· "
+				lineString += "  "
 		print(lineString)
 
 def addTuple(a:tuple, b:tuple) -> tuple:
@@ -120,14 +121,27 @@ def part1(puzzleInput, mapSize):
 	#print("Initial state")
 	#printMap(mapSize, robots)
 	#print()
-	for i in range(100):
+	counter1 = 0
+	counter2 = 0
+	for i in range(20000):
+		if i >= 31:
+			counter1 += 1
+
+		if i >= 68:
+			counter2 +=1
+
 		for robot in robots:
 			robot.move()
 			
-			#if robot == robots[-1]:
-				#print(f"{i+1} seconds")
-				#printMap(mapSize, robots)
-				#print()
+			if robot == robots[-1]:
+				if counter1 == 103 or counter2 == 101:
+					print(f"{i+1} seconds")
+					printMap(mapSize, robots)
+					print()
+					if counter1 == 103:
+						counter1 = 0
+					if counter2 == 101:
+						counter2 = 0
 
 	robotsInQuadrants = {
 		(0, 0) : 0,
