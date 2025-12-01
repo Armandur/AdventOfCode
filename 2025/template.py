@@ -24,7 +24,7 @@ if __name__ == '__main__':
 	today = datetime.datetime.now()
 	puzzleInput = util.getInput(today.year, today.day, cookie)
 	test = []
-	with open(f"{today.year}/test.txt", "a+") as file:
+	with open(f"{today.year}/test.txt", "r") as file:
 		test = file.read().splitlines()
 
 	print(f"Part one: {part1(puzzleInput)}")
