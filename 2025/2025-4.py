@@ -3,11 +3,22 @@ import datetime
 import sys
 from pprint import pprint
 
+def printDepartmentMap(printingDepartment, marked=list([]), color=util.colors.green):
+	mapWidth = len(printingDepartment[0])
+	mapHeight = len(printingDepartment)
+	for y in range(0, mapHeight):
+		line = ""
+		for x in range(0, mapWidth):
+			if marked and any((x, y) in sublist for sublist in marked):
+				line += util.colorString(printingDepartment[y][x], color)
+			else:
+				line += printingDepartment[y][x]
+		print(line)
+
+paperCoords = []
 
 def part1(puzzleInput):
 	count = 0
-
-	paperCoords = []
 
 	def checkRoll(printingDepartment, pos): #pos = (x, y)
 		posX = pos[0]
@@ -50,25 +61,33 @@ def part1(puzzleInput):
 			if puzzleInput[y][x] == "@":
 				checkRoll(puzzleInput, (x, y))
 
-	def printDepartmentMap(printingDepartment, marked=list([]), color=util.colors.green):
-		mapWidth = len(printingDepartment[0])
-		mapHeight = len(printingDepartment)
-		for y in range(0, mapHeight):
-			line = ""
-			for x in range(0, mapWidth):
-				if marked and any((x, y) in sublist for sublist in marked):
-					line += util.colorString(printingDepartment[y][x], color)
-				else:
-					line += printingDepartment[y][x]
-			print(line)
-
-	printDepartmentMap(puzzleInput, [paperCoords], util.colors.green)
+	#printDepartmentMap(puzzleInput, [paperCoords], util.colors.green)
 	count = len(paperCoords)
 	return count
 
 
 def part2(puzzleInput):
 	count = 0
+	part1(puzzleInput)
+
+	def removeRolls(printingDepartment):
+		removed = 0
+		for coord in paperCoords:
+			x = coord[0]
+			y = coord[1]
+			printingDepartment[y] = printingDepartment[y][:x] + "." + printingDepartment[y][x+1:]
+			removed += 1
+		return removed
+
+	while len(paperCoords) > 0:
+		printDepartmentMap(puzzleInput, [paperCoords], util.colors.red)
+
+		removed = removeRolls(puzzleInput)
+		print()
+		print(f"Removing {removed} rolls\n")
+		paperCoords.clear()
+		part1(puzzleInput)
+		count += removed
 	
 	return count
 
@@ -85,7 +104,7 @@ if __name__ == '__main__':
 		test = file.read().splitlines()
 
 	#print(f"Part one: {part1(puzzleInput)}")
-	print(util.postAnswer(today.year, today.day, 1, part1(puzzleInput), cookie))
+	#print(util.postAnswer(today.year, today.day, 1, part1(puzzleInput), cookie))
 
 	#print(f"Part two: {part2(puzzleInput)}")
 	#print(util.postAnswer(today.year, today.day, 2, part2(puzzleInput), cookie))
